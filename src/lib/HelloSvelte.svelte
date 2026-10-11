@@ -1,14 +1,16 @@
 <script>
- console.log("Hello Svelte")
+  import Logo from "./Logo.svelte";
+  const name = "Abdillah Kim And Ani Nur Febriani";
 </script>
-
 
 <style>
   h1 {
-    color: red
+    color: green
   }
 </style>
 
 <h1>
-  Hello Asu
+  {name.toUpperCase()}!
 </h1>
+
+<Logo/>
