@@ -1,14 +1,12 @@
 <script>
- console.log("Hello Svelte")
+  const toasMessage = "<h1>Email is required</h1>"
 </script>
 
 
 <style>
-  h1 {
-    color: red
+  p {
+    color: red;
   }
 </style>
 
-<h1>
-  Hello Asu
-</h1>
+<p>{@html toasMessage}</p>
