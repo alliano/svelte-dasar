@@ -1,0 +1,1 @@
+import{a as e,i as t,n}from"./legacy-BpXN_uaE.js";var r=e(`<h1 class="svelte-j8w9vi">Hello Asu</h1>`);function i(e){console.log(`Hello Svelte`);var n=r();t(e,n)}n(i,{target:document.getElementById(`app`)});
