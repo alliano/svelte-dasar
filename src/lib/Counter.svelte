@@ -1,5 +1,14 @@
 <script>
-  let count = $state(0)
+  let count = 0;
+
+  function increment() {
+    count++;
+    document.getElementById("counter").innerText = `Counter : ${count}`;
+  }
 </script>
 
-<button type="button" class="counter" onclick={() => count++}>Count is {count}</button>
+
+
+<h1 id="counter" >Counter: 0</h1>
+
+<button type="button" class="counter" onclick={increment}>increment</button>
