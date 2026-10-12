@@ -1,18 +1,11 @@
-Repo: `belajar-svelte-dasar` · Branch: `feat/reactive-state` · Vite 8.3 · 2026-10-12
-
----
-
 # Multi-Page dengan Vite
+Secara default, Vite cuma membangun satu halaman saja yaitu `index.html`. Padahal di project ini ada beberapa halaman latihan yang berdiri sendiri-sendiri, jadi setiap halamanya harus kita daftarkan sebagai entry point terpisah.
 
-- Vite secara default hanya membangun `index.html`; halaman lain harus didaftarkan sendiri
-- Tiap entry di `build.rolldownOptions.input` menghasilkan satu halaman beserta bundle JS-nya
-- Key-nya jadi nama file output di `dist/`, value-nya path file HTML **relatif terhadap root proyek**
-- Menambah halaman = dua langkah: buat file HTML-nya **di root**, lalu daftarkan entry-nya
-- Di Vite 5–6 opsi ini bernama `rollupOptions`; `rolldownOptions` adalah namanya di Vite 8
-- https://vite.dev/guide/build.html
+Pendaftaranya dilakukan di `build.rolldownOptions.input` pada file `vite.config.js`. Setiap entry didalamnya bakal menghasilkan satu halaman HTML beserta bundle JS-nya sendiri. Untuk lebih detail nya bisa kunjungi disini https://vite.dev/guide/build.html
+``` js
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { defineConfig } from 'vite'
 
-```js
-// vite.config.js
 export default defineConfig({
   plugins: [svelte()],
   build: {
@@ -28,24 +21,31 @@ export default defineConfig({
 })
 ```
 
-```js
-// path dihitung dari root proyek, bukan dari src/
-input: { counter: "counter.html" }        // file ada di root      ← dipakai di sini
-input: { counter: "src/counter.html" }    // file ada di src/
+Vite akan memulai dari setiap file HTML yang ada didaftar itu, membaca tag `<script type="module">` didalamnya, lalu menelusuri seluruh rantai `import`-nya sampai habis, termasuk file `.svelte` dan `.css`.
+
+Key-nya (`say_hello`) bakal jadi nama file output di folder `dist/`. Sedangkan value-nya adalah path file HTML-nya, yang dihitung **relatif terhadap root project** — bukan relatif terhadap `vite.config.js`, dan bukan juga terhadap folder `src/`.
+
+Nah, bagian path inilah yang sempat bikin masalah di project ini. Di `input` sudah tertulis `counter: "counter.html"`, tapi file aslinya ada di `src/counter.html`. Akibatnya halaman counter nga bisa di-build, karena Vite nyarinya di root dan nga ketemu :
+``` js
+// file ada di root project
+input: { counter: "counter.html" }
+
+// file ada di dalam src/
+input: { counter: "src/counter.html" }
 ```
 
----
+Jadi setiap kali kita mau menambah halaman baru, ada dua langkah yang dua-duanya wajib : buat file HTML-nya **di root project** (sejajar dengan `index.html`), lalu daftarkan entry-nya di `input`.
+
+Satu catatan soal penamaan, `rolldownOptions` itu nama opsi untuk bundler Rolldown yang dipakai Vite 8. Di Vite 5 sampai 6 yang masih pakai Rollup, opsi yang sama namanya `rollupOptions`. Isinya sama persis, cuma beda nama, jadi jangan bingung kalau nemu tutorial lama.
 
 # Mengakses Halaman di Dev Server
-
-- Halaman selain index diakses lewat nama file-nya: `localhost:5173/counter.html`
-- Dev server membaca langsung dari filesystem, jadi halaman bisa jalan walau belum terdaftar di `input`
-- Akibatnya halaman bisa normal di `vite dev` tapi hilang setelah `vite build`
-- Kalau halaman tidak muncul di `dist/`, yang pertama dicek adalah entry-nya di `input`
-- https://vite.dev/guide/build.html
-
+Pas development, halaman selain index diakses lewat nama file-nya :
 ```
 http://localhost:5173/              → index.html
 http://localhost:5173/counter.html  → counter.html
 http://localhost:5173/sayHello.html → sayHello.html
 ```
+
+Yang perlu diwaspadai, dev server membaca langsung dari filesystem. Jadi sebuah halaman bisa aja kebuka normal pas `vite dev` walaupun belum didaftarkan di `input`, lalu hilang begitu kita jalankan `vite build`.
+
+Kalau ada halaman yang jalan di dev tapi nga ada di folder `dist/`, hampir pasti entry-nya belum ditambahkan.
