@@ -6,7 +6,7 @@
 # Dokumentasi Pembelajaran
 Ini adalah catatan belajar Svelte 5 + Vite dari project `belajar-svelte-dasar`. Setiap dokumen membahas satu area konsep, lengkap dengan contoh kodenya.
 
-* [reactive-state.md](./reactive-state.md) — `$state()`, `$state()` dengan object, `$state.raw()`, `bind:value`
+* [reactive-state.md](./reactive-state.md) — `$state()` dengan object dan array, `$derived()`, `$state.raw()`, `bind:value`
 * [render-komponen.md](./render-komponen.md) — `mount()`, rantai file `.html` → `.js` → `.svelte`
 * [sintaks-template.md](./sintaks-template.md) — interpolasi, event handler, scoped style
 * [vite-multi-page.md](./vite-multi-page.md) — `build.rolldownOptions.input`, akses halaman di dev server

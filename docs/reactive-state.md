@@ -99,6 +99,84 @@ Kode diatas sebenernya masih membaca input menggunakan `document.getElementById(
 
 Dengan `bind:value`, fungsi `sayHello()` dan tombolnya nga diperlukan lagi. Teks dibawahnya akan langsung ikut berubah setiap kali kita mengetik.
 
+# $state() dengan Array
+Selain object, `$state()` juga bisa menampung array. Dan karena Proxy-nya sifatnya *deep*, method yang memutasi array seperti `push()`, `pop()`, atau `splice()` tetap kebaca sebagai perubahan :
+``` svelte
+<script>
+  let count = $state([]);
+
+  function increment() {
+    // push langsung kedeteksi, nga perlu bikin array baru
+    count.push(1);
+  }
+</script>
+
+<h1>{count.join(" + ")}</h1>
+
+<button type="button" onclick={increment}>Add</button>
+```
+
+Ini agak beda dengan kebiasaan di React, dimana kita harus selalu bikin array baru supaya perubahanya kebaca. Di Svelte 5 dua-duanya jalan, tapi yang mutasi langsung jelas lebih singkat :
+``` js
+// cukup seperti ini
+count.push(1);
+
+// nga perlu seperti ini
+count = [...count, 1];
+```
+
+# Derived State
+Kadang-kadang kita butuh state yang nilainya dihitung dari state lain, misalnya total dari sebuah array. Biasanya kita akan tergoda untuk menyimpan totalnya sebagai state kedua, lalu menghitung ulang setiap kali datanya berubah :
+``` svelte
+<script>
+  let count = $state([]);
+  // cara ini gampang basi, totalnya harus kita jaga sendiri
+  let total = $state(0);
+
+  function increment() {
+    count.push(1);
+    total = count.reduce((a, b) => a + b, 0);
+  }
+</script>
+```
+
+Masalahnya, setiap ada tempat lain yang mengubah `count`, kita harus ingat untuk menghitung ulang `total` disitu juga. Sekali kelupaan, totalnya langsung nga nyambung dengan datanya.
+
+Namun, di Svelte kita nga perlu melakukanya seperti contoh diatas. Kita bisa menggunakan Rune `$derived(expression)` untuk membuat state yang bereaksi terhadap perubahan state lain. Untuk lebih detail nya bisa kunjungi disini https://svelte.dev/docs/svelte/$derived
+``` svelte
+<script>
+  let count = $state([]);
+
+  // total akan ikut terhitung ulang setiap kali count berubah
+  let total = $derived(count.reduce((a, b) => a + b, 0));
+
+  function increment() {
+    count.push(1);
+  }
+</script>
+
+<h1>{count.join(" + ")} = {total}</h1>
+
+<button type="button" class="counter" onclick={increment}>Add</button>
+```
+
+Svelte mencatat state apa saja yang dibaca didalam ekspresi `$derived`. Disini yang kebaca adalah `count`, jadi `count` otomatis jadi dependency-nya. Begitu `count` berubah, `total` ditandai basi dan dihitung ulang. Jadi fungsi `increment()` cukup mengurus `count` saja.
+
+Nilai `$derived` sifatnya read-only, jadi jangan ditugaskan ulang. Dia selalu hasil dari ekspresinya, bukan sesuatu yang kita set sendiri :
+``` js
+// SALAH: $derived nga boleh ditugaskan ulang
+total = 100;
+```
+
+Satu hal lagi, isi `$derived()` itu harus berupa satu ekspresi. Kalau perhitunganya butuh beberapa baris, kita bisa menggunakan `$derived.by(() => { ... })` yang menerima function :
+``` js
+let total = $derived.by(() => {
+  let hasil = 0;
+  for (const n of count) hasil += n;
+  return hasil;
+});
+```
+
 # $state.raw()
 Kita sudah tau kalau `$state` membungkus object menggunakan Proxy supaya setiap perubahan field-nya bisa terdeteksi. Tapi membuat Proxy itu ada biayanya, apalagi kalau object-nya besar dan isinya dibungkus sampai ke dalam-dalam.
 
