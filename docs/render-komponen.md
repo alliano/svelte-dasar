@@ -37,6 +37,30 @@ const app = new Counter({
 });
 ```
 
+# Script Komponen Cuma Jalan Sekali
+Ada satu hal mendasar yang membedakan Svelte dengan React atau Vue : kode yang ada didalam `<script>` itu **cuma dijalankan sekali** saat komponenya dibuat. Yang dijalankan ulang cuma bagian yang reaktif saja, yaitu element HTML yang bergantung pada state-nya.
+
+Di React, seluruh function komponenya dipanggil ulang setiap kali ada perubahan state. Makanya disana kita butuh `useState` supaya nilainya nga ke-reset, dan `useMemo` supaya perhitungan beratnya nga diulang-ulang terus.
+
+Di Svelte kita nga perlu memikirkan itu. `increment` cuma dibuat sekali, dan `console.log` dibawah ini cuma bakal muncul sekali walaupun tombolnya diklik berkali-kali :
+``` svelte
+<script>
+  let count = $state([]);
+
+  // cuma jalan sekali, walaupun count berubah berkali-kali
+  console.log("script jalan");
+
+  function increment() {
+    count.push(1);
+  }
+</script>
+
+<!-- cuma bagian ini yang dirender ulang tiap count berubah -->
+<h1>{count.join(" + ")}</h1>
+```
+
+Jadi kalau kita pengen ngelog setiap kali state-nya berubah, menaruh `console.log` di `<script>` nga bakal ngaruh. Untuk keperluan itu kita pakai `$inspect()`, yang dibahas di [reactive-state.md](./reactive-state.md).
+
 # Rantai File per Halaman
 Setiap halaman di project ini butuh tiga file yang saling nyambung :
 * file `.html` sebagai halamanya

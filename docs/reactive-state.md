@@ -272,3 +272,51 @@ university = { ...university, major: "Sistem Informasi" };
 ```
 
 Satu hal lagi, `bind:value` **nga bisa** dipakai pada object `$state.raw`, karena cara kerjanya adalah menulis ke field. Itulah kenapa blok university diatas memakai tombol dan `getElementById`, sedangkan blok `person` sebelumnya bisa disederhanakan dengan `bind:value`.
+
+# $inspect()
+Saat bikin aplikasi, kita sering pengen ngelog perubahan yang terjadi di state. Biasanya kita akan langsung pakai `console.log(state)` :
+``` js
+function increment() {
+  count.push(1);
+  console.log(count);
+}
+```
+
+Namun, karena `$state` itu sebenernya Proxy object, Svelte bakal ngasih warning kalau kita melakukanya :
+```
+[svelte] console_log_state
+Your `console.log` contained `$state` proxies.
+Consider using `$inspect(...)` or `$state.snapshot(...)` instead
+```
+
+Yang disaranin adalah Rune `$inspect(state)`. Dia bakal otomatis ngelog nilainya sekali diawal, lalu ngelog lagi setiap kali state-nya berubah, tanpa perlu kita taruh `console.log` di tiap tempat yang mengubah data. Untuk lebih detail nya bisa kunjungi disini https://svelte.dev/docs/svelte/$inspect
+``` svelte
+<script>
+  let count = $state([]);
+
+  // otomatis ngelog setiap kali count berubah
+  $inspect(count);
+</script>
+```
+
+Kalau kita mau ngatur sendiri bentuk log-nya, kita bisa menyambungnya dengan `.with(function)`. Function-nya nerima dua argumen : `type` dan nilainya. `type` ini isinya `"init"` pas pertama kali, lalu `"update"` setiap kali ada perubahan :
+``` svelte
+<script>
+  let count = $state([]);
+
+  $inspect(count).with((type, values) => console.log(type, values));
+
+  function increment() {
+    count.push(1);
+  }
+</script>
+```
+
+Hasil di console-nya kurang lebih seperti ini :
+```
+init []
+update [ 1 ]
+update [ 1, 1 ]
+```
+
+Satu hal yang penting diinget, `$inspect` itu **cuma jalan di development**. Pas kita build untuk production, Rune ini dihapus total dari hasil compile-nya. Jadi aman ditinggal di kode, nga bakal kebawa ke user.
