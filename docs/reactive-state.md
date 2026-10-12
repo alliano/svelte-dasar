@@ -168,14 +168,47 @@ Nilai `$derived` sifatnya read-only, jadi jangan ditugaskan ulang. Dia selalu ha
 total = 100;
 ```
 
-Satu hal lagi, isi `$derived()` itu harus berupa satu ekspresi. Kalau perhitunganya butuh beberapa baris, kita bisa menggunakan `$derived.by(() => { ... })` yang menerima function :
-``` js
-let total = $derived.by(() => {
-  let hasil = 0;
-  for (const n of count) hasil += n;
-  return hasil;
-});
+# $derived.by()
+Isi dari `$derived()` itu harus berupa **satu ekspresi**. Selama perhitunganya masih muat satu baris seperti `count.reduce(...)` sih aman.
+
+Lalu gimana dong kalau perhitunganya butuh beberapa baris, misalnya pakai perulangan atau ada percabangan didalamnya ??
+
+Untuk kasus seperti itu kita bisa menggunakan `$derived.by(function)`. Bedanya cuma di bentuk penulisanya : `$derived()` menerima ekspresi, sedangkan `$derived.by()` menerima function yang hasilnya diambil dari `return` :
+``` svelte
+<script>
+  let count = $state([]);
+
+  let total = $derived.by(() => {
+    let total = 0;
+    for(let i=0; i < count.length; i++) {
+      total+=count[i];
+    }
+    // hasil dari return inilah yang jadi nilai total
+    return total;
+  });
+
+  function increment() {
+    count.push(1);
+  }
+</script>
+
+<h1>{count.join(" + ")} = {total}</h1>
+
+<button type="button" class="counter" onclick={increment}>Add</button>
 ```
+
+Pelacakan dependency-nya tetap jalan sama persis. Svelte mencatat state apa saja yang dibaca **didalam** function tersebut, jadi `count` yang dibaca di dalam perulangan tetap kedaftar sebagai dependency.
+
+Kalau kita liat hasil compile-nya, dua-duanya sebenernya menghasilkan hal yang sama. Jadi `$derived(expression)` itu pada dasarnya cuma bentuk singkat dari `$derived.by(() => expression)` :
+``` js
+// let total = $derived(count.reduce((a, b) => a + b, 0));
+let total = $.derived(() => count.reduce((a, b) => a + b, 0));
+
+// let total = $derived.by(() => { ... });
+let total = $.derived(() => { ... });
+```
+
+Oh iya, pada contoh diatas nama variabel `total` didalam function-nya sama dengan nama `$derived`-nya. Ini nga error, karena yang didalam cuma variabel lokal milik function itu. Tapi kalau bikin bingung, mending namanya dibedakan.
 
 # $state.raw()
 Kita sudah tau kalau `$state` membungkus object menggunakan Proxy supaya setiap perubahan field-nya bisa terdeteksi. Tapi membuat Proxy itu ada biayanya, apalagi kalau object-nya besar dan isinya dibungkus sampai ke dalam-dalam.
