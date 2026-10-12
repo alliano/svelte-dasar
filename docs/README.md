@@ -6,7 +6,7 @@ penggunaannya.
 
 | Dokumen | Isi |
 |---------|-----|
-| [reactive-state.md](./reactive-state.md) | Reactive state, `$state()`, `$state()` dengan object, `bind:value` |
+| [reactive-state.md](./reactive-state.md) | Reactive state, `$state()`, `$state()` dengan object, `$state.raw()`, `bind:value` |
 | [render-komponen.md](./render-komponen.md) | `mount()`, rantai `.html` → `.js` → `.svelte` |
 | [sintaks-template.md](./sintaks-template.md) | Interpolasi `{...}`, event handler `onclick`, `<style>` ter-scope |
 | [vite-multi-page.md](./vite-multi-page.md) | `build.rolldownOptions.input`, menambah halaman baru |

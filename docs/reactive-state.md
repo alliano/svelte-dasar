@@ -185,3 +185,115 @@ arah:
 
 Dengan ini fungsi `sayHello()` dan tombolnya tidak diperlukan lagi: teks di
 bawah ikut berubah setiap ketikan, dan tidak ada `id` yang perlu dicocokkan.
+
+---
+
+## $state.raw()
+
+**`$state.raw()` adalah** varian `$state` yang **tidak** membungkus nilainya
+dengan `Proxy`. Konsekuensinya satu, dan itu menentukan seluruh cara
+memakainya:
+
+> Nilai `$state.raw` hanya reaktif saat **diganti utuh**, bukan saat
+> field-nya dimutasi.
+
+```svelte
+<script>
+  let university = $state.raw({
+    name: "",
+    major: ""
+  });
+
+  function inputDataUniversity() {
+    // ganti seluruh object — ini yang terlacak
+    university = {
+      name: document.getElementById("universityName").value,
+      major: document.getElementById("universityMajor").value
+    };
+  }
+</script>
+
+<input type="text" id="universityName" placeholder="University Name" /><br />
+<input type="text" id="universityMajor" placeholder="University Major" /><br />
+<button onclick={inputDataUniversity}>Save Data</button>
+
+<h1>My University Is {university.name}</h1>
+<h1>My Major is {university.major}</h1>
+```
+
+### Cara kerjanya
+
+`$state` biasa dan `$state.raw` menghasilkan kode yang berbeda. Bedanya
+kelihatan jelas kalau komponennya di-compile:
+
+```js
+// let person = $state({ ... })          → dibungkus proxy
+let person = $.proxy({ first_name: "", last_name: "" });
+
+// let university = $state.raw({ ... })  → signal biasa, tanpa proxy
+let university = $.state({ name: "", major: "" });
+```
+
+Karena tidak ada proxy, tidak ada yang mengintip operasi per-field. Yang
+tersisa hanya satu signal yang menampung referensi object itu. Penugasan
+ulang variabelnya dikompilasi jadi `$.set(university, ...)` — dan itulah
+satu-satunya hal yang memicu update.
+
+Menyusul dari situ: **granularitas dependency-nya lebih kasar.** Template
+membaca `$.get(university).name`, artinya yang terdaftar sebagai dependency
+adalah `university` secara keseluruhan, bukan field `name`-nya. Jadi sekali
+`university` diganti, semua pembacanya disegarkan — termasuk yang hanya
+memakai `major`. Dengan `$state` biasa, tiap field dilacak terpisah.
+
+### Kapan dibutuhkan
+
+Pakai `$state.raw` kalau datanya memang **selalu diganti utuh**, bukan
+disunting sebagian:
+
+- Hasil `fetch` dari API — satu response menggantikan response sebelumnya.
+- Object atau array besar yang tidak pernah dimutasi per-field, di mana biaya
+  membuat proxy terasa sia-sia. Proxy `$state` bersifat *deep*, jadi dia ikut
+  membungkus seluruh isi object, bukan hanya lapisan terluarnya.
+- Nilai yang tidak cocok dibungkus proxy karena identitas referensinya
+  penting, atau karena bukan object biasa — misal instance class, `Map`,
+  `Set`, `Date`, atau object dari library pihak ketiga.
+
+Kalau datanya justru sering disunting per-field — seperti form yang tiap
+input-nya berubah sendiri-sendiri — `$state` biasa lebih cocok.
+
+### Gotcha: mutasi gagal tanpa pesan apa pun
+
+Ini jebakan utamanya. Nilai `$state.raw` **tidak** di-`Object.freeze`, jadi
+mutasinya betul-betul mengubah object — hanya saja Svelte tidak tahu:
+
+```js
+// TIDAK memicu update tampilan
+university.name = document.getElementById("universityName").value;
+```
+
+Yang terjadi:
+
+- Tidak ada error, tidak ada warning compiler, tidak ada warning runtime.
+- `console.log(university)` **menampilkan nilai yang sudah benar**, karena
+  object-nya memang sudah berubah.
+- Tapi `<h1>` tetap kosong.
+
+Jadi console terlihat normal sementara UI tidak bergerak — kombinasi yang
+bikin lama dicari. Kalau sebuah nilai `$state.raw` terasa "tidak reaktif",
+yang pertama diperiksa adalah: dia **diganti** atau cuma **dimutasi**.
+
+Untuk mengubah sebagian tanpa kehilangan field lain, gabungkan spread dengan
+penugasan ulang:
+
+```js
+university = { ...university, major: "Sistem Informasi" };
+```
+
+### Catatan: `bind:value` tidak bisa dipakai di sini
+
+Konsekuensi lain yang gampang kelewat: `bind:value` bekerja dengan menulis ke
+field (`university.name = ...`), jadi dia **tidak jalan** pada object
+`$state.raw`. Itu sebabnya blok university memakai tombol dan
+`getElementById`, sementara blok `person` di atas bisa disederhanakan dengan
+`bind:value` — di sini bentuk panjangnya memang konsekuensi dari pilihan
+`raw`, bukan sesuatu yang perlu "dibenarkan".
