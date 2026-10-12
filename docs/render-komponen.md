@@ -1,33 +1,15 @@
+Repo: `belajar-svelte-dasar` · Branch: `feat/reactive-state` · Svelte 5.57 · 2026-10-12
+
+---
+
 # Render Komponen ke Browser
 
-Repo: `belajar-svelte-dasar` · Branch: `feat/reactive-state` · 2026-10-12
-Svelte 5.57
-
----
-
-**File `.svelte` bukan sesuatu yang bisa dibuka browser.** Dia dikompilasi
-jadi JavaScript, dan harus ada kode yang secara eksplisit menempelkan hasilnya
-ke sebuah elemen di halaman. Rantainya tiga lapis:
-
-```
-counter.html  ──<script>──▶  src/counter.js  ──mount()──▶  src/lib/Counter.svelte
-   halaman                     entry point                    komponen
-```
-
-Masing-masing punya satu tugas:
-
-| Lapis | Tugas |
-|-------|-------|
-| `.html` | menyediakan `<div id="app">` sebagai tempat kosong, dan memuat entry JS |
-| `.js` | menyambungkan komponen ke elemen tersebut |
-| `.svelte` | isi dan logika komponennya |
-
----
-
-## mount()
-
-**`mount()` adalah** fungsi dari paket `svelte` yang mengambil sebuah komponen
-dan merender isinya ke dalam elemen DOM yang kita tunjuk.
+- File `.svelte` tidak bisa dibuka browser langsung — harus ditempelkan ke sebuah elemen DOM
+- `mount(Komponen, { target })` merender komponen ke dalam elemen yang ditunjuk
+- Dipanggil sekali per halaman, hanya untuk komponen paling atas
+- Komponen di dalam komponen tidak di-`mount()`, cukup diimpor lalu dipakai sebagai tag `<Counter />`
+- Svelte 4 memakai `new Komponen({ target })` — sudah tidak berlaku di Svelte 5
+- https://svelte.dev/docs/svelte/imperative-component-api
 
 ```js
 // src/counter.js
@@ -42,84 +24,23 @@ const app = mount(Counter, {
 export default app;
 ```
 
-### Cara kerjanya
-
-`mount()` menerima dua argumen: komponennya, dan sebuah object opsi yang
-wajib berisi `target`.
-
-Saat dipanggil, Svelte menjalankan kode hasil compile komponen tersebut:
-membuat element-element yang dideskripsikan di markup, memasang event
-listener, mendaftarkan dependency reaktifnya, lalu menyisipkan semuanya
-**ke dalam** `target`. Elemen `target` sendiri tidak dihapus — isinya yang
-diisi.
-
-Nilai kembaliannya adalah instance komponen. Instance ini yang nanti dipakai
-kalau kita perlu membongkar komponennya lagi lewat `unmount(app)`. Untuk
-halaman latihan sekali-render seperti di sini, nilainya memang belum terpakai
-— cukup di-`export default` saja.
-
-Karena `target` dicari dengan `document.getElementById("app")`, elemen itu
-harus sudah ada saat script jalan. Itu sebabnya `<script type="module">`
-aman dipakai di `<head>` maupun setelah `<div>`: module script selalu
-ditunda sampai HTML selesai diparse.
-
-### Kapan dibutuhkan
-
-Satu kali per halaman, di file entry, untuk komponen **paling atas** saja.
-
-Komponen di dalam komponen tidak pernah di-`mount()` — cukup diimpor lalu
-dipakai sebagai tag:
-
-```svelte
-<script>
-  import Counter from "./lib/Counter.svelte";
-</script>
-
-<Counter />
-```
-
-### Beda dengan Svelte 4
-
-Di Svelte 4 komponen dirender dengan `new`:
-
-```js
-// Svelte 4 — sudah tidak dipakai di Svelte 5
-const app = new Counter({
-  target: document.getElementById("app")
-});
-```
-
-Di Svelte 5 komponen bukan lagi class, jadi `new Component()` tidak berlaku.
-Kalau menemukan tutorial dengan pola `new`, itu materi versi lama — padanannya
-adalah `mount()`.
-
 ---
 
-## Struktur file HTML halaman
+# Rantai File per Halaman
 
-Setiap halaman latihan isinya sama, yang berbeda hanya entry JS yang dimuat:
+- Tiap halaman butuh tiga file: `.html` → `.js` (entry point) → `.svelte` (komponen)
+- File `.html` cuma menyediakan `<div id="app">` kosong dan memuat entry JS-nya
+- Seluruh isi `<div id="app">` datang dari `mount()` — jadi halaman blank total kalau entry-nya error
+- Tulis `src` absolut (`/src/counter.js`), bukan relatif, supaya tetap benar ke mana pun halamannya dipindah
+- https://vite.dev/guide/
 
-```html
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>belajar-svelte-dasar</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/counter.js"></script>
-  </body>
-</html>
+```
+counter.html  ──<script>──▶  src/counter.js  ──mount()──▶  src/lib/Counter.svelte
 ```
 
-`<div id="app">` sengaja dibiarkan kosong — seluruh isinya datang dari
-`mount()`. Inilah kenapa halaman tampak blank kalau entry JS-nya error:
-tidak ada konten statis yang bisa jadi fallback.
-
-> **Catatan:** `src` sebaiknya ditulis absolut (`/src/counter.js`), bukan
-> relatif (`./src/counter.js`). Yang absolut selalu dihitung dari root
-> proyek, jadi tetap benar ke mana pun halamannya dipindah.
-
-Untuk mendaftarkan halaman baru ke build, lihat [vite-multi-page.md](./vite-multi-page.md).
+```html
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/counter.js"></script>
+</body>
+```
