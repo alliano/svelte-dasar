@@ -17,4 +17,3 @@ Versi yang jadi acuan adalah **Svelte 5.57** dan **Vite 8.3** (bisa dicek di `pa
 Beberapa hal yang kebetulan ketemu saat membaca kode latihanya, belum diubah :
 
 * `src/lib/HelloSvelte.svelte` isinya kosong, tapi masih di-import oleh `src/hello.js`. Jadi `hello.html` ter-build tanpa menampilkan apapun. Isinya kehapus di commit `b8eb2be`.
-* Folder `dist/` ikut ter-commit. Hasil build biasanya masuk `.gitignore`, kalau nga isinya bakal terus bikin diff setiap kali `vite build` jalan.
