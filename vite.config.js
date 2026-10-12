@@ -9,7 +9,8 @@ export default defineConfig({
       input: {
         index: "index.html",
         hello: "hello.html",
-        counter: "counter.html"
+        counter: "counter.html",
+        say_hello: "sayHello.html"
       }
     }
   }
