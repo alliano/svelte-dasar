@@ -9,6 +9,7 @@ Ini adalah catatan belajar Svelte 5 + Vite dari project `belajar-svelte-dasar`. 
 * [reactive-state.md](./reactive-state.md) — `$state()` dengan object dan array, `$derived()`, `$derived.by()`, `$state.raw()`, `$inspect()`, `bind:value`
 * [render-komponen.md](./render-komponen.md) — `mount()`, script komponen yang cuma jalan sekali, rantai file `.html` → `.js` → `.svelte`
 * [sintaks-template.md](./sintaks-template.md) — interpolasi, event handler, scoped style
+* [effect.md](./effect.md) — `$effect()`, cleanup function, dependency yang terlacak
 * [global-state.md](./global-state.md) — state diluar komponen lewat file `.svelte.js`, aturan export-nya
 * [vite-multi-page.md](./vite-multi-page.md) — `build.rolldownOptions.input`, akses halaman di dev server
 
