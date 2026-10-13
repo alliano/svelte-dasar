@@ -18,5 +18,4 @@ Versi yang jadi acuan adalah **Svelte 5.57** dan **Vite 8.3** (bisa dicek di `pa
 Beberapa hal yang kebetulan ketemu saat membaca kode latihanya, belum diubah :
 
 * `src/lib/HelloSvelte.svelte` isinya kosong, tapi masih di-import oleh `src/hello.js`. Jadi `hello.html` ter-build tanpa menampilkan apapun. Isinya kehapus di commit `b8eb2be`.
-* `global-counter.html` belum didaftarkan di `input` pada `vite.config.js`. Halamanya bakal jalan normal pas `vite dev`, tapi hilang begitu di-`vite build`. Lihat [vite-multi-page.md](./vite-multi-page.md).
 * Di `src/lib/Counter.svelte` baris 2 ada komentar `//` yang posisinya **diluar** tag `<script>`. Diluar `<script>` itu konteksnya markup, jadi `//` nga dianggap komentar dan teksnya ikut ke-render di halaman. Kalau mau nulis komentar disitu, pakai `<!-- ... -->`, atau dipindah kedalam `<script>`.
