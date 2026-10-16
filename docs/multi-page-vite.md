@@ -66,3 +66,23 @@ path HTML-nya. Perlu dicatat bahwa `rolldownOptions` dipakai karena Vite 8 memak
 Rolldown sebagai bundler; pada Vite versi sebelumnya opsi yang sama bernama
 `rollupOptions`. Untuk lebih detail nya bisa kunjungi disini
 https://vite.dev/guide/build#multi-page-app
+
+# Folder public
+
+Kadang kita butuh berkas yang bisa diakses lewat URL apa adanya, misalnya file JSON
+yang mau kita `fetch` untuk latihan. Kalau kita menaruhnya di dalam `src/`, berkas itu
+akan diproses Vite dan nama berkas hasil build-nya ikut diberi hash, jadi URL-nya
+tidak bisa kita tebak.
+
+Untuk kasus seperti itu berkasnya ditaruh di folder `public/`. Isi folder tersebut
+disalin apa adanya ke root hasil build, jadi `public/article.json` bisa diakses
+sebagai `/article.json`. Untuk lebih detail nya bisa kunjungi disini
+https://vite.dev/guide/assets#the-public-directory
+
+``` js
+// public/article.json diakses dari root, tanpa prefix "public"
+let response = await fetch("/article.json");
+
+// SALAH: path-nya tidak pernah mengandung folder public
+let response = await fetch("/public/article.json");
+```

@@ -121,3 +121,112 @@ yang sebenarnya pindah atau dihapus, kita bisa memberi key lewat `(todo.id)`.
   <li><Todo {...todo}/></li>
 {/each}
 ```
+
+# Menunggu Promise dengan {#await}
+
+Ketika datanya tidak langsung ada, misalnya harus di-`fetch` dulu dari server, kita
+punya tiga kemungkinan tampilan: masih loading, sudah berhasil, atau gagal. Biasanya
+kita akan menampung ketiga kondisi itu di dalam state sendiri, lalu mengatur
+tampilanya dengan `{#if}`.
+
+``` svelte
+<script>
+  let loading = $state(true);
+  let articles = $state([]);
+  let error = $state(null);
+
+  // semua kondisi harus kita urus manual
+  fetch("/article.json")
+    .then((response) => response.json())
+    .then((data) => articles = data)
+    .catch((e) => error = e)
+    .finally(() => loading = false);
+</script>
+```
+
+Namun di Svelte kita tidak perlu melakukanya seperti contoh diatas. Svelte punya
+block `{#await}` yang mengerti Promise, jadi ketiga kondisi tadi cukup ditulis
+sebagai tiga cabang di markup. Untuk lebih detail nya bisa kunjungi disini
+https://svelte.dev/docs/svelte/await
+
+``` svelte
+<script>
+  async function getArticle() {
+    let response = await fetch("/article.json");
+    return await response.json();
+  }
+</script>
+
+{#await getArticle()}
+  <!-- selama Promise masih pending -->
+  <p>Loading...</p>
+{:then articles}
+  <!-- articles adalah nilai hasil resolve Promise-nya -->
+  {#each articles as article}
+    <h1>{article.tittle}</h1>
+    <p>{article.content}</p>
+  {/each}
+{:catch error}
+  <!-- dipakai kalau Promise-nya reject atau fetch-nya gagal -->
+  <p>Error: {error.message}</p>
+{/await}
+```
+
+Yang ditulis setelah `{#await ...}` adalah expression yang menghasilkan Promise, dan
+di contoh diatas function `getArticle()` memang dipanggil langsung disitu. Kalau kita
+tidak butuh tampilan loading, bagian pending-nya bisa dilewati dengan menulisnya
+dalam satu baris, dan `{:catch}` juga sifatnya opsional.
+
+``` svelte
+<!-- langsung ke hasilnya, tanpa cabang loading -->
+{#await getArticle() then articles}
+  {#each articles as article}
+    <h1>{article.tittle}</h1>
+  {/each}
+{/await}
+```
+
+Satu hal yang perlu diingat: expression di dalam `{#await}` akan dievaluasi ulang
+setiap kali bagian itu ikut ter-render ulang. Jadi kalau component-nya punya state
+yang berubah, `getArticle()` berpotensi dipanggil berkali-kali.
+
+``` svelte
+<script>
+  let count = $state(0);
+
+  async function getArticle() {
+    let response = await fetch("/article.json");
+    return await response.json();
+  }
+
+  // Promise-nya dibuat sekali saja, jadi fetch tidak terpanggil ulang
+  const articlePromise = getArticle();
+</script>
+
+<button onclick={() => count++}>{count}</button>
+
+<!-- HATI-HATI: setiap count berubah, fetch-nya jalan lagi -->
+{#await getArticle() then articles}
+  {articles.length}
+{/await}
+
+<!-- aman: yang di-await adalah Promise yang sudah ada -->
+{#await articlePromise then articles}
+  {articles.length}
+{/await}
+```
+
+Perlu dicatat juga bahwa `fetch` hanya menolak Promise-nya kalau koneksinya yang
+gagal. Response dengan status 404 atau 500 tetap dianggap berhasil, jadi kalau kita
+mau status itu masuk ke `{:catch}`, kita harus melemparkan error-nya sendiri.
+
+``` js
+async function getArticle() {
+  let response = await fetch("/article.json");
+
+  // tanpa baris ini, 404 akan lolos ke {:then} dan gagal saat parsing JSON
+  if (!response.ok) throw new Error(`Gagal memuat artikel: ${response.status}`);
+
+  return await response.json();
+}
+```
