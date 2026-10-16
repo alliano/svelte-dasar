@@ -8,7 +8,8 @@ export default defineConfig({
     rolldownOptions: {
       input: {
         index: "index.html",
-        hello: "hello.html"
+        hello: "hello.html",
+        todo: "todo.html"
       }
     }
   }
