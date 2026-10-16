@@ -9,7 +9,8 @@ export default defineConfig({
       input: {
         index: "index.html",
         hello: "hello.html",
-        todo: "todo.html"
+        todo: "todo.html",
+        article: "article.html"
       }
     }
   }
