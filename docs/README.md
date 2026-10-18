@@ -18,9 +18,11 @@ Beberapa hal yang kelihatan saat membaca kode latihan ini:
 - Fungsi `add()` di `src/lib/TodoApp.svelte` tidak mengisi field `done`, padahal
   `src/lib/Todo.svelte` memakainya untuk `{#if done}`. Jadi todo baru selalu masuk
   ke cabang `{:else}`. Cukup tambahkan `done: false` saat push.
-- `src/lib/TodoApp.svelte` membaca input dengan `document.getElementById("todo")`.
-  Jalan, tapi mencampur DOM API dengan state Svelte, dan `id`-nya harus unik di satu
-  halaman. Alternatifnya `bind:value`, dibahas di [event-handling.md](event-handling.md).
+- Input tambah todo di `src/lib/TodoApp.svelte` sudah di-bind ke `name`, tapi `add()`
+  masih membaca lewat `document.getElementById("todo")` dan mengosongkanya dengan
+  `input.value = ""`. State `name` jadi tidak ikut kosong, sehingga teks lamanya bisa
+  muncul kembali. Cukup `todos.push({ id: id++, name })` lalu `name = ""`, dan `id`
+  pada input-nya tidak diperlukan lagi. Dibahas di [binding.md](binding.md).
 - Handler `add()` dipasang di `onclick` button, bukan di `onsubmit` form, sehingga
   menekan Enter di dalam input tidak menambah todo.
 - Di `edit()` pada `src/lib/TodoApp.svelte`, urutan spread-nya terbalik:

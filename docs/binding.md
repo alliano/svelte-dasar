@@ -105,6 +105,58 @@ akan memperingatkan kita di console dengan `ownership_invalid_mutation` dan
 menyarankan memakai `bind:` atau callback. Jadi dua jalan itulah yang disediakan,
 dan di latihan ini kita memilih callback.
 
+# Jangan Campur bind: dengan Penulisan DOM Langsung
+
+Begitu sebuah input kita `bind:`, variabel itulah yang jadi sumber kebenaran
+nilainya. Masalahnya muncul kalau kita masih mengubah input-nya lewat DOM API,
+seperti yang kita lakukan di form tambah todo: input-nya sudah di-bind ke `name`,
+tapi `add()` masih membaca dan mengosongkanya lewat `document.getElementById`.
+
+``` svelte
+<script>
+  let name = $state("");
+
+  function add(e) {
+    e.preventDefault();
+    const input = document.getElementById("todo");
+    todos.push({ id: id++, name: input.value });
+
+    // mengosongkan DOM-nya saja, state name tetap berisi teks lama
+    input.value = "";
+  }
+</script>
+
+<input type="text" id="todo" bind:value={name}>
+```
+
+Akibatnya `name` dan isi input-nya jadi tidak sinkron. Svelte tidak tahu kita
+mengosongkan input-nya sendiri, jadi dia tetap menganggap nilainya adalah teks
+lama, dan teks itu bisa muncul kembali begitu bagian ini di-render ulang. Yang
+benar adalah mengosongkan state-nya, biar Svelte yang menurunkanya ke DOM.
+
+``` svelte
+<script>
+  let name = $state("");
+
+  function add(e) {
+    e.preventDefault();
+
+    // baca dari state, bukan dari DOM
+    todos.push({ id: id++, name });
+
+    // kosongkan state-nya; isi input ikut kosong dengan sendirinya
+    name = "";
+  }
+</script>
+
+<!-- id-nya pun tidak diperlukan lagi -->
+<input type="text" bind:value={name}>
+```
+
+Jadi aturanya sederhana: kalau sebuah element sudah di-bind, semua baca-tulis
+nilainya lewat state. `getElementById` baru masuk akal kalau element-nya memang
+tidak di-bind sama sekali.
+
 # Bentuk bind: yang Lain
 
 `bind:` bukan hanya untuk `value`. Pola namanya sama, yang berubah hanya attribute
