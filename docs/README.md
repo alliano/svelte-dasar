@@ -5,6 +5,7 @@
 - [Satu Repo, Banyak Halaman Latihan](multi-page-vite.md) — entry HTML, `mount()`, config multi-page Vite, folder `public/`
 - [Reactive State di Svelte 5](reactive-state.md) — `$state()`, deep reactivity, mengganti element array, `$state.raw`, `$inspect()`
 - [Event Handler di Svelte 5](event-handling.md) — `onclick`, `preventDefault()`, `bind:value`, event props
+- [Binding di Svelte 5](binding.md) — `bind:value`, `$bindable()`, `bind:checked`, `bind:this`
 
 # Yang Perlu Dibenahi
 
@@ -34,9 +35,12 @@ Beberapa hal yang kelihatan saat membaca kode latihan ini:
 - Field `edit` disimpan di dalam object todo, padahal dia status tampilan dan bukan
   data todo. Menyimpan `editingId` di satu state lebih bersih dan otomatis membuat
   hanya satu baris yang bisa terbuka sekaligus.
-- `EditTodo.svelte` juga membaca input lewat `document.getElementById(id)`, dengan
-  `id` todo dipakai sebagai id element HTML. Kalau nanti ada dua daftar todo di satu
-  halaman, id-nya akan bertabrakan.
+- `EditTodo.svelte` sudah memakai `bind:value={name}`, tapi `save()`-nya masih
+  membaca nilainya lewat `document.getElementById(id)`. Jadi binding-nya belum
+  terpakai; isi `save()` cukup `onedit(id, name)`, dan `id={id}` di input-nya pun
+  tidak diperlukan lagi.
+- Selama `id` todo masih dipakai sebagai id element HTML, id-nya akan bertabrakan
+  kalau nanti ada dua daftar todo di satu halaman.
 - `{#each todos as todo }` di `src/lib/TodoApp.svelte` kelebihan satu spasi sebelum
   kurung tutup, begitu juga `<button  onclick=...>` yang spasinya dobel. Indentasi
   `</li>` di dalam `{#each}` juga meleset satu level.

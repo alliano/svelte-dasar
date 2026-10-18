@@ -152,8 +152,8 @@ yang sama, keduanya akan membaca input yang sama.
 
 Svelte punya cara yang lebih pas, yaitu `bind:value` yang menghubungkan input
 dengan sebuah state dua arah. Kalau user mengetik, state-nya ikut berubah; kalau
-state-nya kita ubah dari script, isi input-nya ikut berubah. Untuk lebih detail
-nya bisa kunjungi disini https://svelte.dev/docs/svelte/bind
+state-nya kita ubah dari script, isi input-nya ikut berubah. Pembahasan lengkapnya
+ada di [binding.md](binding.md).
 
 ``` svelte
 <script>
@@ -214,17 +214,15 @@ sendiri — disini `id` dan nama barunya.
 ``` svelte
 <script>
   // onedit isinya function, bukan data
-  const { id, name, onedit } = $props();
+  let { id, name, onedit } = $props();
 
   function save() {
-    const input = document.getElementById(id);
-
-    // memberi tahu parent: todo dengan id ini namanya jadi input.value
-    onedit(id, input.value);
+    // memberi tahu parent: todo dengan id ini namanya jadi name
+    onedit(id, name);
   }
 </script>
 
-{id} - <input type="text" id={id} value={name}>
+{id} - <input type="text" bind:value={name}>
 <button onclick={save}>Save</button>
 ```
 
@@ -268,6 +266,7 @@ melapor, dan parent-lah yang memutuskan apa yang berubah.
 -->
 ```
 
-Karena itu `value={name}` di child cukup satu arah. Kita tidak memakai
-`bind:value` disana, karena nilai barunya tidak perlu hidup di child — dia hanya
-perlu dibacakan sekali saat Save di-click, lalu dikirim ke parent.
+Karena itu `bind:value={name}` di child tidak otomatis mengubah `todos` di parent.
+Binding-nya hanya menyinkronkan input dengan variabel di dalam child, dan hasilnya
+tetap harus dilaporkan lewat `onedit()`. Soal kapan binding bisa menembus sampai ke
+parent, ada di [binding.md](binding.md).
