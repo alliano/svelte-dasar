@@ -9,7 +9,7 @@
 - [Styling di Svelte 5](styling.md) — scoped style, `:global()`, `style:`, `class:`, class dinamis
 - [Action di Svelte 5](actions.md) — `use:`, cleanup lewat `$effect`, action dengan parameter
 - [Transition di Svelte 5](transitions.md) — `transition:`, `in:`/`out:`, parameter, `|global`
-- [Snippet dan @render](snippets.md) — `{#snippet}`, `{@render}`, snippet sebagai props, `children`
+- [Snippet dan @render](snippets.md) — `{#snippet}`, `{@render}`, snippet sebagai props, layout component, `children`
 
 # Yang Perlu Dibenahi
 
@@ -23,3 +23,10 @@
   dokumen, tidak lagi di kodenya.
 - Kata `tampa` dan `tetep` di komentar snippet `src/lib/TodoApp.svelte` salah tulis,
   seharusnya `tanpa` dan `tetap`. Begitu juga `reder` yang seharusnya `render`.
+- `{@render content()}` di `src/lib/LayoutBlog.svelte` ditulis tanpa `?.`, jadi
+  snippet `content` wajib ada. Begitu `<LayoutBlog/>` dipakai tanpa isi, halamanya
+  error saat dijalankan. Kalau lubang itu boleh kosong, pakai `{@render content?.()}`.
+- Jarak antar paragraf di `src/lib/Blog.svelte` dibuat dengan `<br>`. Untuk pemisah
+  antar paragraf, `margin` di CSS lebih tepat ketimbang element kosong.
+- Komentar di `src/lib/Blog.svelte` ada salah tulis `ktia` (seharusnya `kita`) dan
+  `Salahsatu` (seharusnya `Salah satu`).

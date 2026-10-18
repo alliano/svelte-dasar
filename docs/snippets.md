@@ -138,6 +138,119 @@ dengan nama yang sama, jadi tidak perlu dikirim manual.
 </TodoList>
 ```
 
+# Layout Component dengan Snippet
+
+Salah satu pemakaian snippet yang paling sering adalah membuat component kerangka
+halaman, yaitu component yang sudah menyiapkan susunanya lalu menyisakan beberapa
+lubang untuk diisi pemakainya. Bagian yang isinya sekadar teks cukup jadi props
+biasa, sedangkan bagian yang isinya markup kita terima sebagai snippet.
+
+``` svelte
+<!-- LayoutBlog.svelte -->
+<script>
+  // title dan footer cuma teks, content berisi markup
+  const { title, content, footer } = $props();
+</script>
+
+<h1>{title}</h1>
+
+<div>
+  {@render content()}
+</div>
+
+<footer>{footer}</footer>
+```
+
+Saat memakainya, props teksnya kita tulis sebagai attribute seperti biasa, dan
+snippet-nya kita tulis di dalam tag component-nya.
+
+``` svelte
+<script>
+  import LayoutBlog from "./LayoutBlog.svelte";
+</script>
+
+<LayoutBlog title="Contoh Blog" footer="Copyright 2026">
+  <!-- namanya content, sama dengan nama props yang dirender LayoutBlog -->
+  {#snippet content()}
+    <p>Lorem ipsum dolor sit amet...</p>
+    <p>Hic quam veritatis modi...</p>
+  {/snippet}
+</LayoutBlog>
+```
+
+Karena nama snippet-nya yang menentukan props mana yang diisi, satu component bisa
+punya beberapa lubang sekaligus tanpa perlu diurutkan. Syaratnya, setiap lubang yang
+isinya snippet harus dirender dengan `{@render}` di component-nya — props yang hanya
+ditulis `{footer}` tetap diperlakukan sebagai teks.
+
+``` svelte
+<!-- LayoutBlog.svelte: footer-nya ikut jadi snippet -->
+<script>
+  const { title, content, footer } = $props();
+</script>
+
+<h1>{title}</h1>
+<div>{@render content()}</div>
+<footer>{@render footer()}</footer>
+```
+
+Dengan begitu pemakainya bisa mengisi keduanya dengan markup, dan urutan
+penulisanya tidak berpengaruh.
+
+``` svelte
+<LayoutBlog title="Contoh Blog">
+  {#snippet footer()}
+    <small>Copyright <strong>2026</strong></small>
+  {/snippet}
+
+  {#snippet content()}
+    <p>Isi tulisanya</p>
+  {/snippet}
+</LayoutBlog>
+```
+
+Perlu diingat, `{@render content()}` tanpa tanda tanya berarti snippet-nya wajib
+ada. Kalau component-nya dipakai tanpa mengirim `content`, kodenya akan error saat
+dijalankan. Jadi untuk lubang yang boleh kosong, pakai `?.()`.
+
+``` svelte
+<!-- wajib: <LayoutBlog/> tanpa isi akan error -->
+{@render content()}
+
+<!-- opsional: aman walaupun tidak diisi -->
+{@render content?.()}
+```
+
+# Menutup Tag Component yang Berisi Snippet
+
+Begitu kita menaruh snippet di dalam tag component, tag itu tidak boleh
+self-closing lagi — dia harus punya pasangan penutup. Kesalahan yang gampang
+terjadi adalah menutupnya dengan `<LayoutBlog/>`, padahal itu bukan tag penutup
+melainkan pemanggilan component kedua.
+
+``` svelte
+<LayoutBlog title="Contoh Blog">
+  {#snippet content()}
+    <p>Isi tulisanya</p>
+  {/snippet}
+<!-- SALAH: ini memanggil LayoutBlog lagi, bukan menutup yang di atas -->
+<LayoutBlog/>
+```
+
+Akibatnya tag yang dibuka di atas tidak pernah ditutup, dan compiler berhenti dengan
+`block_unclosed` alias "Block was left open". Yang menyesatkan, error-nya menunjuk ke
+baris pembuka — karena itulah yang menggantung — bukan ke baris yang salah tulis.
+Penutupnya harus memakai garis miring di depan nama.
+
+``` svelte
+<LayoutBlog title="Contoh Blog">
+  {#snippet content()}
+    <p>Isi tulisanya</p>
+  {/snippet}
+<!-- BENAR -->
+</LayoutBlog>
+```
+
 # Children
 
 Markup biasa yang kita tulis di dalam tag component juga sebenarnya sebuah snippet,
