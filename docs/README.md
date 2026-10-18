@@ -6,6 +6,7 @@
 - [Reactive State di Svelte 5](reactive-state.md) — `$state()`, deep reactivity, mengganti element array, `$state.raw`, `$inspect()`
 - [Event Handler di Svelte 5](event-handling.md) — `onclick`, `preventDefault()`, `bind:value`, event props
 - [Binding di Svelte 5](binding.md) — `bind:value`, `$bindable()`, `bind:checked`, `bind:this`
+- [Styling di Svelte 5](styling.md) — scoped style, `:global()`, `style:`, `class:`, class dinamis
 
 # Yang Perlu Dibenahi
 
@@ -18,11 +19,13 @@ Beberapa hal yang kelihatan saat membaca kode latihan ini:
 - Fungsi `add()` di `src/lib/TodoApp.svelte` tidak mengisi field `done`, padahal
   `src/lib/Todo.svelte` memakainya untuk `{#if done}`. Jadi todo baru selalu masuk
   ke cabang `{:else}`. Cukup tambahkan `done: false` saat push.
-- Input tambah todo di `src/lib/TodoApp.svelte` sudah di-bind ke `name`, tapi `add()`
-  masih membaca lewat `document.getElementById("todo")` dan mengosongkanya dengan
-  `input.value = ""`. State `name` jadi tidak ikut kosong, sehingga teks lamanya bisa
-  muncul kembali. Cukup `todos.push({ id: id++, name })` lalu `name = ""`, dan `id`
-  pada input-nya tidak diperlukan lagi. Dibahas di [binding.md](binding.md).
+- `add()` di `src/lib/TodoApp.svelte` sekarang sudah memakai state `name`, tapi baris
+  `const input = document.getElementById("todo")` masih tertinggal dan tidak terpakai
+  lagi. Attribute `id="todo"` pada input-nya juga sudah tidak diperlukan.
+- `save()` di `src/lib/EditTodo.svelte` masih membaca lewat
+  `document.getElementById(id)` padahal input-nya sudah di-bind ke `name`. Cukup
+  `onedit(id, name)`, dan `id={id}` di input-nya bisa dihapus. Dibahas di
+  [binding.md](binding.md).
 - Handler `add()` dipasang di `onclick` button, bukan di `onsubmit` form, sehingga
   menekan Enter di dalam input tidak menambah todo.
 - Di `edit()` pada `src/lib/TodoApp.svelte`, urutan spread-nya terbalik:
@@ -37,10 +40,6 @@ Beberapa hal yang kelihatan saat membaca kode latihan ini:
 - Field `edit` disimpan di dalam object todo, padahal dia status tampilan dan bukan
   data todo. Menyimpan `editingId` di satu state lebih bersih dan otomatis membuat
   hanya satu baris yang bisa terbuka sekaligus.
-- `EditTodo.svelte` sudah memakai `bind:value={name}`, tapi `save()`-nya masih
-  membaca nilainya lewat `document.getElementById(id)`. Jadi binding-nya belum
-  terpakai; isi `save()` cukup `onedit(id, name)`, dan `id={id}` di input-nya pun
-  tidak diperlukan lagi.
 - Selama `id` todo masih dipakai sebagai id element HTML, id-nya akan bertabrakan
   kalau nanti ada dua daftar todo di satu halaman.
 - `{#each todos as todo }` di `src/lib/TodoApp.svelte` kelebihan satu spasi sebelum
@@ -49,6 +48,16 @@ Beberapa hal yang kelihatan saat membaca kode latihan ini:
 - `{#each}`-nya belum memakai key. Untuk hapus pakai `filter()` memang masih aman,
   tapi menambahkan `(todo.id)` jadi `{#each todos as todo (todo.id)}` membuat Svelte
   memindahkan element yang ada daripada me-render ulang dari posisi yang berubah.
+- Nilai `transition: background-color 0,3s 0000;` di `src/lib/EditTodo.svelte` tidak
+  valid: pemisah desimalnya koma dan ada `0000` yang bukan satuan apa pun. Browser
+  akan mengabaikan baris itu, jadi transisinya tidak jalan. Yang dimaksud mungkin
+  `transition: background-color 0.3s ease;`.
+- `src/lib/HelloSvelte.svelte` masih menyisakan `console.log("Hello Svelte")` di
+  block script-nya.
+- Komentar penjelasan di `src/lib/HelloSvelte.svelte` dan `src/lib/EditTodo.svelte`
+  ada beberapa salah tulis (`trribute`, `tas style`, `Namin`, `memilii`, `guakan`,
+  `hanrus`). Tidak berpengaruh ke jalanya kode, tapi mengganggu kalau dibaca lagi
+  nanti.
 - `src/App.svelte` dan `src/lib/Counter.svelte` adalah sisa template `create-vite`,
   belum dipakai di latihan mana pun.
 - Field `tittle` di `public/article.json` dan di `src/lib/Article.svelte` sama-sama
