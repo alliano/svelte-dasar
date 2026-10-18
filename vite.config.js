@@ -11,7 +11,8 @@ export default defineConfig({
         hello: "hello.html",
         todo: "todo.html",
         article: "article.html",
-        time: "time.html"
+        time: "time.html",
+        blog: "blog.html"
       }
     }
   }
