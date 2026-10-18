@@ -168,9 +168,10 @@ baris. Kalau penandanya kita taruh sebagai satu state di component-nya, misalnya
 {/each}
 ```
 
-Alternatifnya, kita simpan `id` todo yang sedang di-edit di satu state, lalu
-membandingkanya di dalam `{#if}`. Dengan cara ini `todos` tetap bersih dari field
-yang sebenarnya bukan data todo, dan hanya satu baris yang bisa terbuka sekaligus.
+Cara yang akhirnya kita pakai di latihan ini adalah menyimpan `id` todo yang sedang
+di-edit di satu state, lalu membandingkanya di dalam `{#if}`. Dengan cara ini
+`todos` tetap bersih dari field yang sebenarnya bukan data todo, dan hanya satu
+baris yang bisa terbuka sekaligus.
 
 ``` svelte
 <script>

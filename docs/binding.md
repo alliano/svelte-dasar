@@ -108,9 +108,9 @@ dan di latihan ini kita memilih callback.
 # Jangan Campur bind: dengan Penulisan DOM Langsung
 
 Begitu sebuah input kita `bind:`, variabel itulah yang jadi sumber kebenaran
-nilainya. Masalahnya muncul kalau kita masih mengubah input-nya lewat DOM API,
-seperti yang kita lakukan di form tambah todo: input-nya sudah di-bind ke `name`,
-tapi `add()` masih membaca dan mengosongkanya lewat `document.getElementById`.
+nilainya. Masalahnya muncul kalau kita masih mengubah input-nya lewat DOM API.
+Ini sempat terjadi di form tambah todo: input-nya sudah di-bind ke `name`, tapi
+`add()` masih membaca dan mengosongkanya lewat `document.getElementById`.
 
 ``` svelte
 <script>
