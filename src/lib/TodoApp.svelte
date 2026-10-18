@@ -11,7 +11,7 @@
     const input = document.getElementById("todo");
     todos.push({
       id: id++,
-      name: input.value
+      name: name
     })
     name = "";
   }
