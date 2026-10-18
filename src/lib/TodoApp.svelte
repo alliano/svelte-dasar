@@ -1,29 +1,13 @@
 <script>
   import Todo from "./Todo.svelte";
   import EditTodo from "./EditTodo.svelte";
-
-  // Transition
-  // Transition merupakan feature dimana kita menambahkan transisi element ketika masuk dan keluar dari DOM
-  // Kita bisa menggunakan transition: pada element yang akan ditambahkan
-  // https://svelte.dev/docs/svelte/transition
-  // Svelte menyediakan beberapa proses transition yang bisa kita gunakan
-  // https://svelte.dev/docs/svelte/svelte-transition
-  //
-  // Transition Parameter
-  // Beberapa jenis transition memiliki parameter yang bisa kita ubah
-  // Kita bisa menggunakan transition:jenis={parameter} untuk mengubah parameter dari transition yang kita gunakan.
-  //
-  // untuk mengetahui parameter transition nya kita bisa lihat di dokumentasi resmi svelte nya
-  // https://svelte.dev/doc/svelte/svelte-transition
   import {fly} from "svelte/transition";
-    import { flushSync } from "svelte";
 
   let todos = $state([])
   let id = 1;
   let name = $state("");
 
-  // null artinya tidak ada baris yang sedang di-edit
-  let editingId = $state(null);
+   let editingId = $state(null);
 
   function add(e) {
     e.preventDefault();
@@ -48,7 +32,6 @@
   function onEdit(id, name){
     const index = todos.findIndex(item => item.id === id);
     if(index !== -1) {
-      // spread dulu, baru field yang diganti, supaya done tidak ikut terhapus
       todos[index] = {...todos[index], name};
     }
     editingId = null;
@@ -59,39 +42,18 @@
 </script>
 
 
+
 <!--
-  Handler-nya dipasang di onsubmit form, bukan di onclick button, supaya menekan
-  Enter di dalam input juga ikut menambah todo
+  Snippet
+  Snippet merupakan cara untuk membuat komponen yang bisa digunakan, namun masih tetep dalam komponen yang sama tampa harus membuat file lain
+  Ini cocok untuk kasus yang sederhana ketika kita ingin memecah komponen namun tidak ingin memecah komponen dalam file terpisah
+  Untuk membuat snippet, kita bisa menggunakan {#snippet nama_snippet(param)} dalam file svelte
+  https://svelte.dev/docs/svelte/snippet
 -->
-<form onsubmit={add}>
-  <!-- input-nya di-bind ke state name, jadi tidak perlu id dan getElementById -->
-  <input type="text" bind:value={name}>
 
-  <!--
-    Saat Membuat applikasi Frontend kita pasti sering kali akan menambahkan Event listener pada suatu Element untuk memberikan behavior ketika terjadi
-    suatu kejadian. Misalnya:
-    - ketika button di click
-    - ketika pointer menyorot suatu object/element
-    - dan sebagainya
-    Di svelte untuk menambahkan event sangatlah mudah kita bisa menggunakan keyword on<namaEvent> = {function}, yang mana function tersebut bisa kita buat sebagai
-    closure function atau didalam block script
-
-    pada contoh kali ini misalnya ketika terjadi event onsubmit maka akan menjalankan fungsi add() yang berfungsi untuk menambahkan todo
-  -->
-  <button>Add</button>
-</form>
-
-<!-- todo.id dipakai sebagai key, supaya Svelte tahu item mana yang pindah atau dihapus -->
-<ul>
-  {#each todos as todo (todo.id)}
-    <!--
-      In dan Out
-      Kadang kita ingin menggunakan jenis transition yang berbeda ketika masuk dan keluar
-      Maka kita bisa menggunakan in: dan out: di svelte
-    -->
-    <li in:fly={{y: 200, duration: 2000}} out:fly={{y: -200, duration: 1000}}>
-      <!-- hanya baris yang id-nya sama dengan editingId yang masuk mode edit -->
-      {#if todo.id === editingId}
+{#snippet todoRow(todo)}
+   <li in:fly={{y: 200, duration: 2000}} out:fly={{y: -200, duration: 1000}}>
+           {#if todo.id === editingId}
         <EditTodo id={todo.id} name={todo.name} onedit={onEdit}/>
       {:else}
         <Todo {...todo}/>
@@ -99,5 +61,21 @@
         <button onclick={() => edit(todo.id)}>Edit</button>
       {/if}
     </li>
+{/snippet}
+
+<form onsubmit={add}>
+  <input type="text" bind:value={name}>
+  <button>Add</button>
+</form>
+<ul>
+  {#each todos as todo (todo.id)}
+
+    <!--
+    Render
+    render merupakan perintah yang digunakan untuk menampilkan snippet
+    Untuk menggunakan reder, kita bisa menggunakan perintah {@render nama_snippet(param)}
+    https://svelte.dev/docs/svelte/@render
+    -->
+    {@render todoRow(todo)}
   {/each}
 </ul>
