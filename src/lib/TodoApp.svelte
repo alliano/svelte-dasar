@@ -1,35 +1,54 @@
 <script>
   import Todo from "./Todo.svelte";
 
-  const todos = [
-    {
-      id: "1",
-      name: "Belajar Svelte",
-      done: false
-    },
-    {
-      id: "2",
-      name: "Belajar Graphql",
-      done: true
-    },
-    {
-      id: "3",
-      name: "Belajar Rust",
-      done: true
-    }
-  ]
+  let todos = $state([])
+  let id = 1;
+
+  
+  function add(e) {
+    e.preventDefault();
+    const input = document.getElementById("todo");
+    todos.push({
+      id: id++,
+      name: input.value
+    })
+    input.value = "";
+  }
+
+
+  function remove(id) {
+    todos = todos.filter(item => item.id !== id)
+  }
+
+
+  
+  $inspect(todos).with((type, value) => console.log(type, value));
 </script>
 
-<ul>
-  <li><Todo id="1" name="Belajar Svelte" done={false}/></li>
-  <li><Todo id="2" name="Belajar Graphql" done={true}/></li>
-</ul>
 
-<!-- Contoh penggunaan Each loop -->
+<form>
+  <input type="text" id="todo">
+
+  <!--
+    Saat Membuat applikasi Frontend kita pasti sering kali akan menambahkan Event listener pada suatu Element untuk memberikan behavior ketika terjadi
+    suatu kejadian. Misalnya:
+    - ketika button di click
+    - ketika pointer menyorot suatu object/element
+    - dan sebagainya
+    Di svelte untuk menambahkan event sangatlah mudah kita bisa menggunakan keyword on<namaEvent> = {function}, yang mana function tersebut bisa kita buat sebagai
+    closure function atau didalam block script
+
+    pada contoh kali ini misalnya ketika terjadi event onclick maka akan menjalankan fungsi add() yang berfungsi untuk menambahkan todo
+  -->
+  <button onclick={add}>Add</button>
+</form>
 
 <ul>
   {#each todos as todo }
-    <li><Todo {...todo}/></li>
+    <li>
+      <Todo {...todo}/>
+      <button  onclick={() => remove(todo.id)}>remove</button>
+    </li>
   {/each}
 </ul>
 
