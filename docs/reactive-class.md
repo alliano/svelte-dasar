@@ -198,11 +198,3 @@ Untuk property yang nilainya tidak pernah berubah, lebih pas ditaruh di block
 <div class="box" style:width="{box.width}px" style:height="{box.height}px"></div>
 ```
 
-# Yang Perlu Dibenahi
-
-- `box.html` belum didaftarkan di `vite.config.js`. Saat `npm run dev` halamanya
-  tetap bisa dibuka, karena Vite melayani file HTML apa pun di root. Tapi saat
-  `npm run build`, halaman ini tidak ikut ter-build, karena `build.rolldownOptions.input`
-  baru berisi `index` dan `hello`.
-- `style:background-color="blue"` di `src/lib/Box.svelte` nilainya tetap, jadi lebih
-  pas ditaruh di block `<style>` ketimbang jadi style directive.
