@@ -205,19 +205,3 @@ string yang bisa salah tulis.
 Bedanya dengan `getContext` biasa, pengambil dari `createContext()` akan melempar
 error kalau context-nya memang belum pernah di-set, bukan diam-diam memberi
 `undefined`.
-
-# Yang Perlu Dibenahi
-
-- Nama file di `vite.config.js` salah tulis: entry-nya menunjuk ke
-  `comtext-counter.html`, padahal file-nya `context-counter.html`. Saat
-  `npm run dev` halamanya masih bisa dibuka karena Vite melayani file HTML di root
-  apa adanya, tapi `npm run build` akan gagal mencari file yang tidak ada itu.
-- Key context `"counter"` ditulis sebagai string di dua file terpisah
-  (`ContextCounterApp.svelte` dan `ContextCounter.svelte`). Kalau salah satu salah
-  tulis, `getContext` akan mengembalikan `undefined` tanpa peringatan apa pun.
-  `createContext()` menghilangkan risiko itu.
-- `$inspect(counter)` di `src/lib/ContextCounter.svelte` dipasang di keempat
-  instance-nya, jadi satu klik mencetak empat baris log yang sama.
-- Komentar di `src/lib/ContextCounter.svelte` ada yang kurang kata: "hanya component
-  tersebut dan child nya saja yang bisa data state tersebut" — kurang kata "membaca".
-  Kata `reaktive` dan `reactive` juga dipakai bergantian di kalimat yang sama.
