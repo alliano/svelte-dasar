@@ -2,6 +2,22 @@
   import Todo from "./Todo.svelte";
   import EditTodo from "./EditTodo.svelte";
 
+  // Transition
+  // Transition merupakan feature dimana kita menambahkan transisi element ketika masuk dan keluar dari DOM
+  // Kita bisa menggunakan transition: pada element yang akan ditambahkan
+  // https://svelte.dev/docs/svelte/transition
+  // Svelte menyediakan beberapa proses transition yang bisa kita gunakan
+  // https://svelte.dev/docs/svelte/svelte-transition
+  //
+  // Transition Parameter
+  // Beberapa jenis transition memiliki parameter yang bisa kita ubah
+  // Kita bisa menggunakan transition:jenis={parameter} untuk mengubah parameter dari transition yang kita gunakan.
+  //
+  // untuk mengetahui parameter transition nya kita bisa lihat di dokumentasi resmi svelte nya
+  // https://svelte.dev/doc/svelte/svelte-transition
+  import {fly} from "svelte/transition";
+    import { flushSync } from "svelte";
+
   let todos = $state([])
   let id = 1;
   let name = $state("");
@@ -68,7 +84,12 @@
 <!-- todo.id dipakai sebagai key, supaya Svelte tahu item mana yang pindah atau dihapus -->
 <ul>
   {#each todos as todo (todo.id)}
-    <li>
+    <!--
+      In dan Out
+      Kadang kita ingin menggunakan jenis transition yang berbeda ketika masuk dan keluar
+      Maka kita bisa menggunakan in: dan out: di svelte
+    -->
+    <li in:fly={{y: 200, duration: 2000}} out:fly={{y: -200, duration: 1000}}>
       <!-- hanya baris yang id-nya sama dengan editingId yang masuk mode edit -->
       {#if todo.id === editingId}
         <EditTodo id={todo.id} name={todo.name} onedit={onEdit}/>
