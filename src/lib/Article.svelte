@@ -1,6 +1,11 @@
 <script>
   async function getArticle() {
     let response = await fetch("/article.json");
+
+    // fetch hanya menolak Promise-nya kalau koneksinya gagal, jadi status
+    // seperti 404 harus kita lemparkan sendiri supaya masuk ke {:catch}
+    if(!response.ok) throw new Error(`Gagal memuat artikel: ${response.status}`);
+
     return await response.json();
   }
 </script>
@@ -17,7 +22,7 @@
   
 {:then articles} 
   {#each articles as article}
-    <h1>{article.tittle}</h1>
+    <h1>{article.title}</h1>
     <p>{article.content}</p>
   {/each}
 
