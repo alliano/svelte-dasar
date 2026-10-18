@@ -8,7 +8,13 @@
 - [Binding di Svelte 5](binding.md) — `bind:value`, `$bindable()`, `bind:checked`, `bind:this`
 - [Styling di Svelte 5](styling.md) — scoped style, `:global()`, `style:`, `class:`, class dinamis
 - [Action di Svelte 5](actions.md) — `use:`, cleanup lewat `$effect`, action dengan parameter
+- [Transition di Svelte 5](transitions.md) — `transition:`, `in:`/`out:`, parameter, `|global`
 
 # Yang Perlu Dibenahi
 
 - `src/lib/Time.svelte` masih menyisakan `console.log(node)` di dalam action-nya.
+- `import { flushSync } from "svelte"` di `src/lib/TodoApp.svelte` tidak dipakai
+  sama sekali, dan indentasinya juga meleset.
+- Link di komentar `src/lib/TodoApp.svelte` ada yang salah tulis:
+  `https://svelte.dev/doc/svelte/svelte-transition` kurang huruf `s`, seharusnya
+  `/docs/`.
