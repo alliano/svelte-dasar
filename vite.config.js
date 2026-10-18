@@ -9,7 +9,8 @@ export default defineConfig({
       input: {
         index: "index.html",
         hello: "hello.html",
-        context_counter: "comtext-counter.html"
+        context_counter: "comtext-counter.html",
+        blog: "blog.html"
       }
     }
   }
