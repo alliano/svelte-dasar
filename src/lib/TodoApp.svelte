@@ -4,7 +4,7 @@
 
   let todos = $state([])
   let id = 1;
-
+  let name = $state("");
   
   function add(e) {
     e.preventDefault();
@@ -13,7 +13,7 @@
       id: id++,
       name: input.value
     })
-    input.value = "";
+    name = "";
   }
 
 
@@ -44,7 +44,7 @@
 
 
 <form>
-  <input type="text" id="todo">
+  <input type="text" id="todo" bind:value={name}>
 
   <!--
     Saat Membuat applikasi Frontend kita pasti sering kali akan menambahkan Event listener pada suatu Element untuk memberikan behavior ketika terjadi
