@@ -1,14 +1,8 @@
-<script>
- console.log("Hello Svelte")
-</script>
-
-
-
 <!--
   Scoped Style
-  Selain menggunakan trribute style, kita juga bisa menggunakan tas style pada template untuk membuat style pada komponen yang kita buat
-  Namin perlu diketahui, bahwa style yang kita buat dalam komponen hanya bisa digunakan pada komponen tersebut saja.
-  Artinya kita bisa membuat nama CSS class yang sama pada componen yang berbeda tanpa hanrus takut jadi bentrok namanya.
+  Selain menggunakan attribute style, kita juga bisa menggunakan tag style pada template untuk membuat style pada komponen yang kita buat
+  Namun perlu diketahui, bahwa style yang kita buat dalam komponen hanya bisa digunakan pada komponen tersebut saja.
+  Artinya kita bisa membuat nama CSS class yang sama pada komponen yang berbeda tanpa harus takut jadi bentrok namanya.
  -->
 
 <style>
