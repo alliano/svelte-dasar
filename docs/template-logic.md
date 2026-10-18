@@ -122,6 +122,72 @@ yang sebenarnya pindah atau dihapus, kita bisa memberi key lewat `(todo.id)`.
 {/each}
 ```
 
+# Menukar Component per Item dengan {#if} di dalam {#each}
+
+Logic block boleh kita sarangkan, dan gabungan `{#each}` dengan `{#if}` di dalamnya
+sangat berguna ketika setiap item punya dua tampilan. Contohnya daftar todo yang
+tiap barisnya bisa masuk mode edit: baris yang sedang di-edit menampilkan
+`<EditTodo>`, sedangkan baris lainya tetap menampilkan `<Todo>` beserta tombolnya.
+
+Caranya kita simpan penanda mode-nya di item itu sendiri, misalnya field `edit`,
+lalu `{#if}` membaca field tersebut.
+
+``` svelte
+<ul>
+  {#each todos as todo}
+    <li>
+      <!-- todo.edit menentukan tampilan baris ini, bukan tampilan seluruh daftar -->
+      {#if todo.edit}
+        <EditTodo id={todo.id} name={todo.name} onedit={onEdit}/>
+
+      {:else}
+        <Todo {...todo}/>
+        <button onclick={() => remove(todo.id)}>remove</button>
+        <button onclick={() => edit(todo.id)}>Edit</button>
+      {/if}
+    </li>
+  {/each}
+</ul>
+```
+
+Karena penandanya menempel di masing-masing item, mode-nya berdiri sendiri per
+baris. Kalau penandanya kita taruh sebagai satu state di component-nya, misalnya
+`let editing = $state(false)`, semua baris akan ikut masuk mode edit sekaligus.
+
+``` svelte
+<script>
+  // satu penanda untuk semua baris: semuanya ikut berubah bersamaan
+  let editing = $state(false);
+</script>
+
+{#each todos as todo}
+  <!-- SALAH kalau yang kita mau cuma satu baris yang di-edit -->
+  {#if editing}
+    <EditTodo id={todo.id} name={todo.name} onedit={onEdit}/>
+  {/if}
+{/each}
+```
+
+Alternatifnya, kita simpan `id` todo yang sedang di-edit di satu state, lalu
+membandingkanya di dalam `{#if}`. Dengan cara ini `todos` tetap bersih dari field
+yang sebenarnya bukan data todo, dan hanya satu baris yang bisa terbuka sekaligus.
+
+``` svelte
+<script>
+  // null artinya tidak ada baris yang sedang di-edit
+  let editingId = $state(null);
+</script>
+
+{#each todos as todo}
+  {#if todo.id === editingId}
+    <EditTodo id={todo.id} name={todo.name} onedit={onEdit}/>
+  {:else}
+    <Todo {...todo}/>
+    <button onclick={() => editingId = todo.id}>Edit</button>
+  {/if}
+{/each}
+```
+
 # Menunggu Promise dengan {#await}
 
 Ketika datanya tidak langsung ada, misalnya harus di-`fetch` dulu dari server, kita

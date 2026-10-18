@@ -1,10 +1,10 @@
 # Catatan Belajar Svelte
 
 - [Props di Svelte 5](component-props.md) — memisahkan component, `$props()`, spread props
-- [Logic Block di Template Svelte](template-logic.md) — `{#if}`, `{:else if}`, `{#each}`, `{#await}`
+- [Logic Block di Template Svelte](template-logic.md) — `{#if}`, `{:else if}`, `{#each}`, `{#await}`, `{#if}` di dalam `{#each}`
 - [Satu Repo, Banyak Halaman Latihan](multi-page-vite.md) — entry HTML, `mount()`, config multi-page Vite, folder `public/`
-- [Reactive State di Svelte 5](reactive-state.md) — `$state()`, deep reactivity, `$state.raw`, `$inspect()`
-- [Event Handler di Svelte 5](event-handling.md) — `onclick`, `preventDefault()`, `bind:value`
+- [Reactive State di Svelte 5](reactive-state.md) — `$state()`, deep reactivity, mengganti element array, `$state.raw`, `$inspect()`
+- [Event Handler di Svelte 5](event-handling.md) — `onclick`, `preventDefault()`, `bind:value`, event props
 
 # Yang Perlu Dibenahi
 
@@ -22,8 +22,24 @@ Beberapa hal yang kelihatan saat membaca kode latihan ini:
   halaman. Alternatifnya `bind:value`, dibahas di [event-handling.md](event-handling.md).
 - Handler `add()` dipasang di `onclick` button, bukan di `onsubmit` form, sehingga
   menekan Enter di dalam input tidak menambah todo.
+- Di `edit()` pada `src/lib/TodoApp.svelte`, urutan spread-nya terbalik:
+  `{edit: true, ...todos[i]}` membuat `...todos[i]` menimpa `edit` kembali ke nilai
+  lamanya. Jadi sebuah todo hanya bisa masuk mode edit sekali; setelah disimpan
+  (`edit: false`), tombol Edit-nya tidak bereaksi lagi. Yang benar
+  `{...todos[i], edit: true}`, dibahas di [reactive-state.md](reactive-state.md).
+- `onEdit()` menyusun ulang object-nya dari nol (`{id, name, edit: false}`), jadi
+  field lain seperti `done` akan terhapus setelah todo-nya di-edit.
+- Loop di `edit()` dan `onEdit()` tetap berjalan sampai akhir array padahal `id`-nya
+  unik. `findIndex()` lebih ringkas dan berhenti saat ketemu.
+- Field `edit` disimpan di dalam object todo, padahal dia status tampilan dan bukan
+  data todo. Menyimpan `editingId` di satu state lebih bersih dan otomatis membuat
+  hanya satu baris yang bisa terbuka sekaligus.
+- `EditTodo.svelte` juga membaca input lewat `document.getElementById(id)`, dengan
+  `id` todo dipakai sebagai id element HTML. Kalau nanti ada dua daftar todo di satu
+  halaman, id-nya akan bertabrakan.
 - `{#each todos as todo }` di `src/lib/TodoApp.svelte` kelebihan satu spasi sebelum
-  kurung tutup, begitu juga `<button  onclick=...>` yang spasinya dobel.
+  kurung tutup, begitu juga `<button  onclick=...>` yang spasinya dobel. Indentasi
+  `</li>` di dalam `{#each}` juga meleset satu level.
 - `{#each}`-nya belum memakai key. Untuk hapus pakai `filter()` memang masih aman,
   tapi menambahkan `(todo.id)` jadi `{#each todos as todo (todo.id)}` membuat Svelte
   memindahkan element yang ada daripada me-render ulang dari posisi yang berubah.

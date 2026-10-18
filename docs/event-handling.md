@@ -174,3 +174,100 @@ nya bisa kunjungi disini https://svelte.dev/docs/svelte/bind
   <button>Add</button>
 </form>
 ```
+
+# Event Props: Mengirim Event ke Parent
+
+Sampai sini event-nya masih kita tangani di component yang sama. Masalahnya
+muncul begitu kita memecah UI jadi beberapa component. Misalnya kita membuat
+`EditTodo.svelte` untuk mengubah nama todo. Data todo-nya kita kirim lewat props,
+tapi state `todos`-nya tidak ada disana — dia milik `TodoApp.svelte`. Jadi
+`EditTodo` tidak bisa menyimpan hasil editan-nya sendiri.
+
+Ternyata saat membuat component, tidak hanya data yang bisa kita kirim sebagai
+props; kita juga bisa mengirim function. Inilah yang biasa disebut event props
+atau callback props. Parent menyiapkan function-nya, child cukup memanggilnya saat
+event-nya terjadi. Untuk lebih detail nya bisa kunjungi disini
+https://svelte.dev/docs/svelte/$props
+
+Di parent, kita kirim function `onEdit` sebagai props bernama `onedit`.
+
+``` svelte
+<script>
+  import EditTodo from "./EditTodo.svelte";
+
+  let todos = $state([]);
+
+  // function inilah yang akan dipanggil oleh EditTodo
+  function onEdit(id, name) {
+    // ...simpan hasil editan ke state
+  }
+</script>
+
+<!-- onedit diperlakukan sama seperti props biasa -->
+<EditTodo id={todo.id} name={todo.name} onedit={onEdit}/>
+```
+
+Di child, props itu kita ambil dengan `$props()` seperti props lainya, lalu kita
+panggil sebagai function biasa. Argument yang kita kirim bebas kita tentukan
+sendiri — disini `id` dan nama barunya.
+
+``` svelte
+<script>
+  // onedit isinya function, bukan data
+  const { id, name, onedit } = $props();
+
+  function save() {
+    const input = document.getElementById(id);
+
+    // memberi tahu parent: todo dengan id ini namanya jadi input.value
+    onedit(id, input.value);
+  }
+</script>
+
+{id} - <input type="text" id={id} value={name}>
+<button onclick={save}>Save</button>
+```
+
+Perhatikan bahwa nama props-nya `onedit` (huruf kecil semua), sedangkan function
+di parent-nya `onEdit`. Penamaan `on<namaEvent>` memang konvensi Svelte 5 supaya
+seragam dengan event handler element seperti `onclick`, tapi dia tetap props
+biasa — kalau kita namai `simpan={onEdit}` pun jalan.
+
+Kalau kita membaca tutorial Svelte 4, pengiriman event ke parent dilakukan dengan
+`createEventDispatcher()` dan `on:edit` di parent-nya. Cara itu sudah ditinggalkan
+di Svelte 5, jadi tidak perlu kita pakai lagi. Perbandinganya ada di panduan
+migrasinya disini
+https://svelte.dev/docs/svelte/v5-migration-guide#Event-changes-Component-events
+
+``` svelte
+<script>
+  // Svelte 4, jangan dipakai lagi di repo ini
+  import { createEventDispatcher } from "svelte";
+  const dispatch = createEventDispatcher();
+
+  function save() {
+    dispatch("edit", { id, name: input.value });
+  }
+</script>
+```
+
+# Satu Arah Data, Satu Arah Event
+
+Yang perlu kita tangkap dari pola diatas adalah arah alirannya. Data mengalir dari
+parent ke child lewat props, dan event mengalir balik dari child ke parent lewat
+callback. Child tidak pernah mengubah state parent secara langsung; dia hanya
+melapor, dan parent-lah yang memutuskan apa yang berubah.
+
+``` svelte
+<!-- parent: pemilik state, pemilik keputusan -->
+<EditTodo id={todo.id} name={todo.name} onedit={onEdit}/>
+
+<!--
+  turun : id, name  (data)
+  naik  : onedit()  (event)
+-->
+```
+
+Karena itu `value={name}` di child cukup satu arah. Kita tidak memakai
+`bind:value` disana, karena nilai barunya tidak perlu hidup di child — dia hanya
+perlu dibacakan sekali saat Save di-click, lalu dikirim ke parent.

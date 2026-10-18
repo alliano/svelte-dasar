@@ -119,6 +119,82 @@ object-nya tidak akan terlihat.
 </script>
 ```
 
+# Mengganti Satu Element Array State
+
+Kalau yang kita ubah hanya satu element di tengah array, kita tidak perlu membuat
+array baru. Karena `$state` mengawasi array-nya lewat Proxy, assignment ke satu
+index pun sudah reaktif. Pola yang kita pakai di latihan ini adalah mencari
+element-nya dengan loop, lalu menimpanya dengan object baru hasil spread.
+
+``` svelte
+<script>
+  let todos = $state([]);
+
+  function edit(id) {
+    for (let i = 0; i < todos.length; i++) {
+      if (todos[i].id === id) {
+        // assignment ke satu index: reaktif, tanpa bikin array baru
+        todos[i] = { ...todos[i], edit: true };
+      }
+    }
+  }
+</script>
+```
+
+Loop manual seperti diatas sebenarnya bisa kita pendekkan dengan `findIndex()`,
+dan sekalian berhenti begitu ketemu — `id`-nya unik, jadi tidak ada gunanya
+melanjutkan loop sampai akhir.
+
+``` svelte
+<script>
+  function edit(id) {
+    const index = todos.findIndex(item => item.id === id);
+    if (index !== -1) {
+      // cukup satu baris, tidak perlu menelusuri sisa array
+      todos[index] = { ...todos[index], edit: true };
+    }
+  }
+</script>
+```
+
+Yang perlu kita hati-hati disini adalah urutan di dalam object spread. Field yang
+ditulis **setelah** spread akan menimpa field dengan nama sama yang datang dari
+spread-nya, bukan sebaliknya. Jadi kalau niat kita menyetel `edit: true`, dia harus
+berada sesudah `...todos[i]`.
+
+``` svelte
+<script>
+  // todos[i] sudah punya field edit: false dari penyimpanan sebelumnya
+
+  // SALAH: ...todos[i] menimpa edit: true jadi edit: false kembali
+  todos[i] = { edit: true, ...todos[i] };
+
+  // BENAR: edit: true yang menimpa nilai lama dari spread
+  todos[i] = { ...todos[i], edit: true };
+</script>
+```
+
+Efeknya halus dan gampang terlewat: selama object-nya belum pernah punya field
+`edit`, kedua bentuk diatas hasilnya sama persis. Baru setelah field itu pernah
+tersimpan, bentuk yang salah akan diam-diam tidak melakukan apa-apa.
+
+Hal yang mirip terjadi kalau kita menimpa element-nya dengan object yang ditulis
+dari nol, bukan hasil spread. Semua field yang tidak kita tulis akan hilang.
+
+``` svelte
+<script>
+  function onEdit(id, name) {
+    const index = todos.findIndex(item => item.id === id);
+
+    // field lain seperti done ikut terhapus karena tidak ditulis
+    todos[index] = { id, name, edit: false };
+
+    // lebih aman: pertahankan field lama, ganti yang perlu saja
+    todos[index] = { ...todos[index], name, edit: false };
+  }
+</script>
+```
+
 # Melihat Isi State dengan $inspect
 
 Saat state-nya mulai berubah-ubah, kita pasti ingin tahu nilainya sekarang berapa.
