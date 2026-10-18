@@ -1,5 +1,6 @@
 <script>
   import Todo from "./Todo.svelte";
+  import EditTodo from "./EditTodo.svelte";
 
   let todos = $state([])
   let id = 1;
@@ -20,6 +21,22 @@
     todos = todos.filter(item => item.id !== id)
   }
 
+
+  function edit(id) {
+    for(let i=0; i < todos.length; i++) {
+      if(todos[i].id === id) {
+        todos[i] = {edit: true, ...todos[i]};
+      }
+    }
+  }
+
+  function onEdit(id, name){
+    for(let i=0; i < todos.length; i++) {
+      if(todos[i].id === id) {
+        todos[i] = {id, name, edit: false};
+      }
+    }
+  }
 
   
   $inspect(todos).with((type, value) => console.log(type, value));
@@ -46,9 +63,15 @@
 <ul>
   {#each todos as todo }
     <li>
-      <Todo {...todo}/>
-      <button  onclick={() => remove(todo.id)}>remove</button>
-    </li>
+
+      {#if todo.edit}
+        <EditTodo id={todo.id} name={todo.name} onedit={onEdit}/>
+      {:else}
+        <Todo {...todo}/>
+        <button  onclick={() => remove(todo.id)}>remove</button>
+        <button onclick={() => edit(todo.id)}>Edit</button>
+      {/if}
+  </li>
   {/each}
 </ul>
 
