@@ -10,7 +10,8 @@ export default defineConfig({
         index: "index.html",
         hello: "hello.html",
         todo: "todo.html",
-        article: "article.html"
+        article: "article.html",
+        time: "time.html"
       }
     }
   }
