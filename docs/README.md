@@ -2,6 +2,7 @@
 
 - [Context](context.md) — `setContext()`, `getContext()`, kenapa harus object `$state`, `createContext()`
 - [Lifecycle Hooks dan @html](lifecycle.md) — `onMount()`, `onDestroy()`, cleanup yang harus sinkron, `{@html}`
+- [Special Element](special-element.md) — `svelte:body`, `svelte:window`, aturan top level, event object
 
 # Yang Perlu Dibenahi
 
@@ -29,6 +30,10 @@ Beberapa hal yang kelihatan saat membaca kode latihan ini:
   `createContext()` menghilangkan risiko itu.
 - `$inspect(counter)` di `src/lib/ContextCounter.svelte` dipasang di keempat
   instance-nya, jadi satu klik mencetak empat baris log yang sama.
+- `src/lib/Mouse.svelte` memakai `<svelte:body>` untuk melacak mouse, padahal
+  isinya cuma dua baris `h1`. Area kosong di bawah `<body>` tidak ikut terlacak,
+  jadi koordinatnya berhenti berubah disana. `<svelte:window>` lebih tepat untuk
+  kasus ini. Dibahas di [special-element.md](special-element.md).
 - Komentar di `src/lib/ContextCounter.svelte` ada yang kurang kata: "hanya component
   tersebut dan child nya saja yang bisa data state tersebut" — kurang kata "membaca".
   Kata `reaktive` dan `reactive` juga dipakai bergantian di kalimat yang sama.
