@@ -10,7 +10,8 @@ export default defineConfig({
         index: "index.html",
         hello: "hello.html",
         context_counter: "comtext-counter.html",
-        blog: "blog.html"
+        blog: "blog.html",
+        mouse: "mouse.html"
       }
     }
   }
